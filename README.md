@@ -5,7 +5,7 @@ Your goal is to implement a BPE Tokenizer with reasonable training and efficient
 ## Background
 BPE means byte pair encoding. The algorithm is relatively simple and involves the following steps:
 
-1. Split up all words by whitespace. The sentence: "The fat cat walked over the hill." should be: `['The', ' fat', ' cat', ' walked', ' over', ' the', ' hill']`. Note that spaces are kept in front of words when appropriate.
+1. Split up all words by whitespace. The sentence: "The fat cat walked over the hill." should be: `['The', ' fat', ' cat', ' walked', ' over', ' the', ' hill']`. Note that spaces are kept in front of words if they exist. You may choose how to treat multiple characters of whitespace in a row and whitespace characters that are not spaces.
 2. Our initial set of tokens will be all characters in our corpus of text.
 3. For each pair tokens (in the beginning, these are just characters), find the most common pair. For the original sentence, this would be 'he' or 'at'. Merge these pair of tokens to create a new token.
 4. Repeat step 3 until your vocabulary size is sufficiently large. Try to get a vocab size of 1000-5000 for now.
