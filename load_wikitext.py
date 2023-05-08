@@ -4,6 +4,8 @@ from collections import Counter
 import pickle
 import os
 import time
+from heapq import heappush, heappop, heapify
+
 
 def load_dataset():
     """
@@ -53,19 +55,31 @@ for w in word_counter:
 print('initial tokens: ', tokens)
 print('number of initial tokens: ', len(tokens))
 
+possible_tokens_counter = Counter()
+for word, frequency in tqdm(word_counter.items()):
+    for start in range(len(word)-2):
+        # we don't need to count the frequency of single character tokens
+        for end in range(start+2, len(word)):
+            possible_tokens_counter[word[start:end]] += frequency
+
+print('counted tokens')
+
+heap = [(-possible_tokens_counter[a+b], a+b) for a in tokens for b in tokens]
+already_added = set([h[1] for h in heap])
+heapify(heap)
+
 VOCAB_SIZE = 5000
 for _ in tqdm(range(VOCAB_SIZE - len(tokens))):
     # find the most common pair of tokens and merge them
-    possible_tokens_counter = Counter({a+b: 0 for a in tokens for b in tokens if (a+b) not in tokens})
-    assert sum(possible_tokens_counter.values()) == 0 
-    for word, frequency in word_counter.items():
-        for start in range(len(word)-1):
-            for end in range(start+1, len(word)):
-                if word[start:end] in possible_tokens_counter:
-                    possible_tokens_counter[word[start:end]] += frequency
-
-    most_common_token = possible_tokens_counter.most_common(1)[0][0]
+    most_common_token = heappop(heap)[1]
     print('added token: ', most_common_token)
     tokens.add(most_common_token)
+    # update the heap
+    for token in tokens:
+        for new_token in [token+most_common_token, most_common_token+token]:
+            if new_token not in already_added:
+                already_added.add(new_token)
+                heappush(heap, (-possible_tokens_counter[new_token], new_token))
+
     
     
